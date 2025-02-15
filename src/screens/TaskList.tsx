@@ -1,10 +1,28 @@
 import { Text, StyleSheet, View, TouchableOpacity, Modal, KeyboardAvoidingView, TextInput } from 'react-native'
 import React, { useState } from 'react'
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../store/store';
+import { addTask } from '../store/tasksSlice';
 
 const TaskList : React.FC =() => {
 
     const [isModalVisible, setIsModalVisible] = useState(false) 
     const [newTaskTitle, setNewTaskTitle] = useState('');
+    const dispatch = useDispatch<AppDispatch>()
+
+    const handleAddNewTask = () => {
+      if(newTaskTitle.trim()) {
+        dispatch(
+          addTask({
+            title: newTaskTitle.trim(), 
+            completed: false
+          })
+        )
+        setNewTaskTitle(''); 
+        setIsModalVisible(false);
+      }
+    }
+
 
 
     return (
@@ -47,6 +65,7 @@ const TaskList : React.FC =() => {
                  </TouchableOpacity> 
                   <TouchableOpacity 
                     style={[styles.modalBtn, styles.submitBtn]}
+                    onPress={handleAddNewTask}
                   >
                     <Text style={styles.closeBtnTxt}>Add Task</Text>
                   </TouchableOpacity>
