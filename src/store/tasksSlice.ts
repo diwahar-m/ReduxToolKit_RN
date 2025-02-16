@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface Task {
@@ -20,6 +20,11 @@ const initialState: TaskState = {
     error: null
 }
 
+export const fetchTasks = createAsyncThunk('tasks/fetchTasks',async () => {
+    const storedTasks = await AsyncStorage.getItem('tasks'); 
+    return storedTasks ? JSON.parse(storedTasks) : [];
+})
+
 export const addTask = createAsyncThunk('tasks/addTask', async (task: Omit<Task, 'id'>) => {
     console.log(task);
     const newTask = { ...task, id: Date.now().toString()}
@@ -33,8 +38,15 @@ export const addTask = createAsyncThunk('tasks/addTask', async (task: Omit<Task,
 
 const tasksSlice = createSlice({
     name: 'tasks', 
-    initialState: {},
-    reducers: {}
+    initialState,
+    reducers: {},
+    extraReducers: builder => {
+        builder.addCase(fetchTasks.pending, state => {
+            state.status = 'loading'
+        }).addCase(fetchTasks.fulfilled, (state,action: PayloadAction<Task[]>)=> {
+            
+        })
+    }
 })
 
 export default tasksSlice.reducer
