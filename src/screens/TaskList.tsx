@@ -1,14 +1,22 @@
-import { Text, StyleSheet, View, TouchableOpacity, Modal, KeyboardAvoidingView, TextInput } from 'react-native'
-import React, { useState } from 'react'
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../store/store';
-import { addTask } from '../store/tasksSlice';
+import { Text, StyleSheet, View, TouchableOpacity, Modal, KeyboardAvoidingView, TextInput, FlatList, Alert } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../store/store';
+import { addTask, deleteTask, fetchTasks, Task, toggleTask } from '../store/tasksSlice';
+import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 
 const TaskList : React.FC =() => {
 
     const [isModalVisible, setIsModalVisible] = useState(false) 
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const dispatch = useDispatch<AppDispatch>()
+    const tasks = useSelector((state: RootState) => state.tasks.tasks)
+    const status = useSelector((state: RootState)=> state.tasks.status)
+
+    
+    useEffect(()=> {
+      if (status === 'idle') dispatch(fetchTasks())
+    },[])
 
     const handleAddNewTask = () => {
       if(newTaskTitle.trim()) {
@@ -23,11 +31,48 @@ const TaskList : React.FC =() => {
       }
     }
 
+    const handleDeleteTask = (taskId: string) => {
+      Alert.alert("Delete Task", "Are you sure to delete task ? ", [
+        {
+          text: 'Cancel', 
+          style: 'cancel'
+        }, 
+        {
+          text: 'Delete', 
+          style: 'destructive', 
+          onPress: () => dispatch(deleteTask(taskId))
+        }
+      ])
+    }
 
+    const createRenderTask =({item}: {item: Task}) => {
+      return <Animated.View 
+        entering={FadeInRight} 
+         exiting={FadeOutLeft} 
+         layout={Layout.springify()}
+      >
+      <TouchableOpacity 
+        style={[styles.taskItem, item.completed && styles.completedTaskItem]} 
+        onPress={()=> dispatch(toggleTask(item.id))}
+        >
+
+        <Text style={[styles.taskItemText, item.completed && styles.completedTaskItemText]}>{item.title}</Text>
+        <TouchableOpacity style={styles.deleteTaskBtn}>
+          <Text style={styles.deleteTaskBtnTxt} onPress={()=> handleDeleteTask(item?.id)}>Delete</Text>
+        </TouchableOpacity>
+      </TouchableOpacity>
+      </Animated.View>
+
+    }
 
     return (
       <View style={styles.container}>
-        <Text>TaskList</Text>
+        <FlatList 
+          data={tasks}
+          renderItem={createRenderTask}
+          keyExtractor={item =>item.id}
+
+        />
         <TouchableOpacity style={styles.addBtn}>
             <Text style={styles.addBtnTxt} onPress={()=> setIsModalVisible(true)}>Add</Text>
         </TouchableOpacity> 
@@ -163,6 +208,36 @@ const styles = StyleSheet.create({
     }, 
     submitBtn: {
       backgroundColor: '#b912a3'
+    }, 
+    taskItem:{
+      flexDirection: 'row', 
+      alignItems: 'center', 
+      backgroundColor: '#ffffff', 
+      padding: 15, 
+      marginVertical: 8, 
+      borderRadius: 8, 
+      elevation:2
+    }, 
+    completedTaskItem: {
+      opacity: 0.8,
+    }, 
+    taskItemText: {
+      marginLeft:10, 
+      fontSize: 16,
+      flex: 1,
+    }, 
+    completedTaskItemText: {
+      textDecorationLine: 'line-through'
+    }, 
+    deleteTaskBtn: {
+      backgroundColor: '#e8ea7d', 
+      padding: 12,
+      borderRadius: 25
+    }, 
+    deleteTaskBtnTxt: {
+      fontSize: 16, 
+      fontWeight: 'bold', 
+      color: '#000',
     }
 })
 export default TaskList
