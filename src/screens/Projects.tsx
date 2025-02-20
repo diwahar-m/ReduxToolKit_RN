@@ -6,6 +6,11 @@ const Projects : React.FC =() => {
     return (
       <View style={styles.container}>
         <Text>Projects</Text>
+        {/* Basic components */} 
+        {/* sub screens using stack navigation */}
+        {/* Basic animation & combination properties from reanimated */}
+        {/* Integrate 3rd party api in one sub screen & context there for dark theme */}  
+        {/* Form in another sub screen & manage state using redux */}
       </View>
     )
   
