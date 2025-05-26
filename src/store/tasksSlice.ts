@@ -26,10 +26,9 @@ export const fetchTasks = createAsyncThunk('tasks/fetchTasks',async () => {
 })
 
 export const addTask = createAsyncThunk('tasks/addTask', async (task: Omit<Task, 'id'>) => {
-    console.log(task);
     const newTask = { ...task, id: Date.now().toString()}
     const storedTasks = await AsyncStorage.getItem('tasks');
-    const tasks = storedTasks ? JSON.parse(storedTasks) : []; 
+    const tasks = storedTasks ? JSON.parse(storedTasks) : [];
     tasks.push(newTask); 
 
     await AsyncStorage.setItem('tasks', JSON.stringify(tasks));
@@ -59,7 +58,7 @@ export const toggleTask  = createAsyncThunk('tasks/toggleTask', async (taskId: s
 })
 
 const tasksSlice = createSlice({
-    name: 'tasks', 
+    name: 'tasks',
     initialState,
     reducers: {},
     extraReducers: builder => {

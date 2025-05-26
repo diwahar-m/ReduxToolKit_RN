@@ -3,8 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 
 const projectsSlice = createSlice({
-    name: 'projects', 
-    initialState: {}, 
+    name: 'projects',
+    initialState: {},
     reducers: {}
 })
 
